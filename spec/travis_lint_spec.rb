@@ -134,6 +134,32 @@ describe "A .travis.yml" do
         Travis::Lint::Linter.validate(travis_yml).should include({ :key => :language, :issue => "Language is set to Ruby but node_js key is present. Ruby builder will ignore node_js key." })
       end
     end
+
+
+    context "that specifies gemfiles" do
+      def yml_for_gemfiles(gemfiles)
+        { :language => "ruby", :gemfile => gemfiles }
+      end
+
+      def error_for(gemfile)
+        { :key => :gemfile, :issue => "The gemfile \"#{gemfile}\" does not exist." }
+      end
+
+      before { File.stub :exist? => true }
+
+      it 'is valid when all the gemfiles exist' do
+        result = Travis::Lint::Linter.validate(yml_for_gemfiles %w[gemfile1 gemfile2])
+        result.should_not include(error_for 'gemfile1')
+        result.should_not include(error_for 'gemfile2')
+      end
+
+      it 'is invalid when any gemfile does not' do
+        File.stub(:exist?).with("gemfile2").and_return(false)
+        result = Travis::Lint::Linter.validate(yml_for_gemfiles %w[gemfile1 gemfile2])
+        result.should_not include(error_for 'gemfile1')
+        result.should     include(error_for 'gemfile2')
+      end
+    end
   end
 
 

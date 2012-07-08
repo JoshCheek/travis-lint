@@ -81,6 +81,13 @@ module Travis
         hsh[:language].to_s.downcase == "ruby" && ! blank?(hsh[:node_js])
       end
 
+      validator = DSL::Validator.new :ruby, :gemfile, nil, Proc.new { |hsh|
+        gemfiles = Array(hsh[:gemfile])
+        missing_gemfile = gemfiles.find { |filename| !File.exist?(filename) }
+        validator.message = "The gemfile \"#{missing_gemfile}\" does not exist." if missing_gemfile
+        missing_gemfile
+      }
+      DSL.class_variable_get('@@validators') << validator
 
       KNOWN_RUBY_VERSIONS = %w(1.8.7 ruby-1.8.7 1.9.2 ruby-1.9.2 1.9.3 ruby-1.9.3 ruby-head jruby jruby-18mode jruby-19mode rbx rbx-18mode rbx-19mode jruby-head ree ree-1.8.7)
       KNOWN_NODE_VERSIONS = %w(0.4 0.6 0.7)
