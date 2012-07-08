@@ -81,13 +81,13 @@ module Travis
         hsh[:language].to_s.downcase == "ruby" && ! blank?(hsh[:node_js])
       end
 
-      validator_with_message :ruby, :gemfile do |validator|
-        validator.validate do |hsh|
-          Array(hsh[:gemfile]).any? { |filename| !File.exist?(filename) }
+      validator_with_message :ruby, :gemfile do
+        def validate(hash)
+          Array(hash[:gemfile]).any? { |filename| !File.exist?(filename) }
         end
 
-        validator.message do |hsh|
-          missing_gemfile = Array(hsh[:gemfile]).find { |filename| !File.exist?(filename) }
+        def message(hash)
+          missing_gemfile = Array(hash[:gemfile]).find { |filename| !File.exist?(filename) }
           "The gemfile \"#{missing_gemfile}\" does not exist."
         end
       end

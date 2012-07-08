@@ -19,21 +19,9 @@ module Travis
           instance_eval &definition
         end
 
-        def message(&message_block)
-          if message_block
-            self.message_block = message_block
-          else
-            self.message_block.call
-          end
-        end
-
-        def validate(&block)
-          @validator = block
-        end
-
         def call(hash)
-          return [true, {}] unless self.validator.call(hash)
-          [false, { :key => key, :issue => message_block.call(hash) }]
+          return [true, {}] unless validate(hash)
+          [false, { :key => key, :issue => message(hash) }]
         end
       end
     end
