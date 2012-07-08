@@ -15,6 +15,10 @@ module Travis
         @@validators << Validator.new(language, key, message, validator)
       end
 
+      def validator_with_message(language, key, &definition)
+        @@validators << ValidatorWithDynamicMessage.new(language, key, &definition)
+      end
+
 
       def validators_for_language(language)
         @@validators.select { |v| v.language.to_s.downcase == language.to_s.downcase }
